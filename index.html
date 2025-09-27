@@ -186,6 +186,7 @@
         ph: parseFloat(document.getElementById("ph").value),
         rainfall: parseFloat(document.getElementById("rainfall").value)
       };
+      console.log(data.model);
 
       try {
         const response = await fetch("http://localhost:8000/predict", {
