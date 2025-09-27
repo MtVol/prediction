@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Formulario de Predicción</title>
+  <script defer>
+    async function enviarFormulario(event) {
+      event.preventDefault();
+
+      const data = {
+        firs_name: document.getElementById("firs_name").value,
+        last_name: document.getElementById("last_name").value,
+        identificacion_number: document.getElementById("identificacion_number").value,
+        pregnancies: parseInt(document.getElementById("pregnancies").value),
+        grucose: parseInt(document.getElementById("grucose").value),
+        bloodpressure: parseInt(document.getElementById("bloodpressure").value),
+        skinthickness: parseInt(document.getElementById("skinthickness").value),
+        insulin: parseInt(document.getElementById("insulin").value),
+        bmi: parseFloat(document.getElementById("bmi").value),
+        diabetespedigreefuncion: parseFloat(document.getElementById("diabetespedigreefuncion").value),
+        age: parseInt(document.getElementById("age").value),
+      };
+
+      try {
+        const response = await fetch("http://localhost:8000/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) throw new Error("Error en la petición");
+
+        const result = await response.json();
+        document.getElementById("resultado").innerText =
+          "Predicción: " + result.prediction;
+      } catch (error) {
+        document.getElementById("resultado").innerText =
+          "Error: " + error.message;
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f7f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      width: 400px;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      outline: none;
+      transition: 0.3s;
+    }
+    input:focus {
+      border-color: #007BFF;
+      box-shadow: 0 0 5px rgba(0,123,255,0.4);
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 8px;
+      background: #007BFF;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    #resultado {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Formulario de Predicción</h2>
+    <form onsubmit="enviarFormulario(event)">
+      <label for="firs_name">Nombre</label>
+      <input type="text" id="firs_name" required>
+
+      <label for="last_name">Apellido</label>
+      <input type="text" id="last_name" required>
+
+      <label for="identificacion_number">Número de Identificación</label>
+      <input type="text" id="identificacion_number" required>
+
+      <label for="pregnancies">Embarazos</label>
+      <input type="number" id="pregnancies" min="0" required>
+
+      <label for="grucose">Glucosa</label>
+      <input type="number" id="grucose" min="0" required>
+
+      <label for="bloodpressure">Presión Arterial</label>
+      <input type="number" id="bloodpressure" min="0" required>
+
+      <label for="skinthickness">Grosor de Piel</label>
+      <input type="number" id="skinthickness" min="0" required>
+
+      <label for="insulin">Insulina</label>
+      <input type="number" id="insulin" min="0" required>
+
+      <label for="bmi">Índice de Masa Corporal (BMI)</label>
+      <input type="number" id="bmi" step="0.1" min="0" required>
+
+      <label for="diabetespedigreefuncion">Función Hereditaria de Diabetes</label>
+      <input type="number" id="diabetespedigreefuncion" step="0.001" min="0" required>
+
+      <label for="age">Edad</label>
+      <input type="number" id="age" min="0" required>
+
+      <button type="submit">Prediccion</button>
+    </form>
+    <div id="resultado"></div>
+  </div>
+</body>
+</html>
