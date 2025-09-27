@@ -1,149 +1,207 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Formulario de Predicción</title>
-  <script defer>
-    async function enviarFormulario(event) {
-      event.preventDefault();
-
-      const data = {
-        firs_name: document.getElementById("firs_name").value,
-        last_name: document.getElementById("last_name").value,
-        identificacion_number: document.getElementById("identificacion_number").value,
-        pregnancies: parseInt(document.getElementById("pregnancies").value),
-        grucose: parseInt(document.getElementById("grucose").value),
-        bloodpressure: parseInt(document.getElementById("bloodpressure").value),
-        skinthickness: parseInt(document.getElementById("skinthickness").value),
-        insulin: parseInt(document.getElementById("insulin").value),
-        bmi: parseFloat(document.getElementById("bmi").value),
-        diabetespedigreefuncion: parseFloat(document.getElementById("diabetespedigreefuncion").value),
-        age: parseInt(document.getElementById("age").value),
-      };
-
-      try {
-        const response = await fetch("https://pyiot.onrender.com/predict", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-
-        if (!response.ok) throw new Error("Error en la petición");
-
-        const result = await response.json();
-        document.getElementById("resultado").innerText =
-          "Predicción: " + result.prediction;
-      } catch (error) {
-        document.getElementById("resultado").innerText =
-          "Error: " + error.message;
-      }
-    }
-  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Predicción de Cultivo</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f4f7f9;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 0;
       display: flex;
       justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
+      align-items: flex-start;
+      min-height: 100vh;
     }
     .container {
       background: #fff;
+      margin-top: 40px;
       padding: 30px;
       border-radius: 15px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-      width: 400px;
+      max-width: 850px;
+      width: 100%;
     }
-    h2 {
+    h1 {
       text-align: center;
-      color: #333;
       margin-bottom: 20px;
+      color: #333;
+    }
+    .model-btn {
+      display: block;
+      width: 100%;
+      padding: 18px;
+      border: none;
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 25px;
+      cursor: default;
+      text-align: center;
+      transition: background 0.3s, color 0.3s;
+    }
+    .rf {
+      background: #28a745;
+      color: white;
+    }
+    .svm {
+      background: #ff9800;
+      color: white;
+    }
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
     }
     label {
-      font-weight: bold;
-      margin-top: 10px;
-      display: block;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #444;
     }
-    input {
-      width: 100%;
+    input, select {
       padding: 10px;
-      margin-top: 5px;
       border-radius: 8px;
       border: 1px solid #ccc;
+      font-size: 14px;
       outline: none;
-      transition: 0.3s;
+      transition: border 0.3s;
     }
-    input:focus {
-      border-color: #007BFF;
-      box-shadow: 0 0 5px rgba(0,123,255,0.4);
+    input:focus, select:focus {
+      border-color: #007bff;
+    }
+    .full-width {
+      grid-column: span 2;
+      display: flex;
+      justify-content: center;
     }
     button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 20px;
-      border: none;
-      border-radius: 8px;
-      background: #007BFF;
+      background: #007bff;
       color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
       font-size: 16px;
-      font-weight: bold;
       cursor: pointer;
       transition: background 0.3s;
     }
     button:hover {
       background: #0056b3;
     }
-    #resultado {
-      margin-top: 20px;
+    .result {
+      margin-top: 30px;
       text-align: center;
       font-size: 18px;
       font-weight: bold;
-      color: #444;
+      color: #222;
+      padding: 15px;
+      border-radius: 10px;
+      background: #f1f9ff;
+      display: none;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Formulario de Predicción</h2>
-    <form onsubmit="enviarFormulario(event)">
-      <label for="firs_name">Nombre</label>
-      <input type="text" id="firs_name" required>
+    <h1>Formulario de Predicción</h1>
 
-      <label for="last_name">Apellido</label>
-      <input type="text" id="last_name" required>
+    <!-- Botón grande que cambia según el modelo -->
+    <div id="modelIndicator" class="model-btn rf">
+      Modelo seleccionado: RandomForest
+    </div>
 
-      <label for="identificacion_number">Número de Identificación</label>
-      <input type="text" id="identificacion_number" required>
-
-      <label for="pregnancies">Embarazos</label>
-      <input type="number" id="pregnancies" min="0" required>
-
-      <label for="grucose">Glucosa</label>
-      <input type="number" id="grucose" min="0" required>
-
-      <label for="bloodpressure">Presión Arterial</label>
-      <input type="number" id="bloodpressure" min="0" required>
-
-      <label for="skinthickness">Grosor de Piel</label>
-      <input type="number" id="skinthickness" min="0" required>
-
-      <label for="insulin">Insulina</label>
-      <input type="number" id="insulin" min="0" required>
-
-      <label for="bmi">Índice de Masa Corporal (BMI)</label>
-      <input type="number" id="bmi" step="0.1" min="0" required>
-
-      <label for="diabetespedigreefuncion">Función Hereditaria de Diabetes</label>
-      <input type="number" id="diabetespedigreefuncion" step="0.001" min="0" required>
-
-      <label for="age">Edad</label>
-      <input type="number" id="age" min="0" required>
-
-      <button type="submit">Prediccion</button>
+    <form id="predictionForm">
+      <div class="form-group">
+        <label for="model">Modelo</label>
+        <select id="model" name="model" required>
+          <option value="0" selected>RandomForest</option>
+          <option value="1">SVM</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="N">N (int)</label>
+        <input type="number" id="N" name="N" required>
+      </div>
+      <div class="form-group">
+        <label for="P">P (int)</label>
+        <input type="number" id="P" name="P" required>
+      </div>
+      <div class="form-group">
+        <label for="K">K (int)</label>
+        <input type="number" id="K" name="K" required>
+      </div>
+      <div class="form-group">
+        <label for="temperature">Temperatura (float)</label>
+        <input type="number" step="0.01" id="temperature" name="temperature" required>
+      </div>
+      <div class="form-group">
+        <label for="humidity">Humedad (float)</label>
+        <input type="number" step="0.01" id="humidity" name="humidity" required>
+      </div>
+      <div class="form-group">
+        <label for="ph">pH (float)</label>
+        <input type="number" step="0.01" id="ph" name="ph" required>
+      </div>
+      <div class="form-group">
+        <label for="rainfall">Lluvia (float)</label>
+        <input type="number" step="0.01" id="rainfall" name="rainfall" required>
+      </div>
+      <div class="full-width">
+        <button type="submit">Prediccion</button>
+      </div>
     </form>
-    <div id="resultado"></div>
+    <div id="result" class="result"></div>
   </div>
+
+  <script>
+    const modelSelect = document.getElementById("model");
+    const modelIndicator = document.getElementById("modelIndicator");
+
+    // Cambiar color del botón grande según el modelo
+    modelSelect.addEventListener("change", () => {
+      if (modelSelect.value === "0") {
+        modelIndicator.textContent = "Modelo seleccionado: RandomForest";
+        modelIndicator.className = "model-btn rf";
+      } else {
+        modelIndicator.textContent = "Modelo seleccionado: SVM";
+        modelIndicator.className = "model-btn svm";
+      }
+    });
+
+    document.getElementById("predictionForm").addEventListener("submit", async function(e){
+      e.preventDefault();
+
+      const data = {
+        model: parseInt(document.getElementById("model").value),
+        N: parseInt(document.getElementById("N").value),
+        P: parseInt(document.getElementById("P").value),
+        K: parseInt(document.getElementById("K").value),
+        temperature: parseFloat(document.getElementById("temperature").value),
+        humidity: parseFloat(document.getElementById("humidity").value),
+        ph: parseFloat(document.getElementById("ph").value),
+        rainfall: parseFloat(document.getElementById("rainfall").value)
+      };
+
+      try {
+        const response = await fetch("http://localhost:8000/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        const resultDiv = document.getElementById("result");
+        resultDiv.style.display = "block";
+        resultDiv.textContent = "🌱 Predicción: " + result.prediction;
+      } catch (error) {
+        alert("Error al conectarse con el servidor: " + error);
+      }
+    });
+  </script>
 </body>
 </html>
